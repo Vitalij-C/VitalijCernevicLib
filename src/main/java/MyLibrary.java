@@ -3,6 +3,7 @@ import lt.techin.library.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Year;
+import java.time.chrono.ChronoLocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -46,7 +47,6 @@ public class MyLibrary implements Library {
             throw new IllegalArgumentException();
         }
 
-
         members.add(libraryMember);
     }
 
@@ -57,17 +57,47 @@ public class MyLibrary implements Library {
 
     @Override
     public void borrowBook(String memberId, String isbn) {
+        if (null == memberId || memberId.isEmpty()) {
+            throw new IllegalArgumentException();
+        }
 
+        if (null == isbn || isbn.isEmpty()) {
+            throw new IllegalArgumentException();
+        }
+
+        Book book = getBookByIsbn(isbn);
+
+        if (null == book || !book.isAvailable()) {
+            throw new IllegalArgumentException();
+        }
+
+        book.makeUnavailable();
+
+        BorrowInfo borrowInfo = new BorrowInfo(isbn, memberId, LocalDate.now());
+
+        borrowBooks.add(borrowInfo);
     }
 
     @Override
     public void returnBook(String memberId, String isbn) {
+        BorrowInfo borrowInfo = borrowBooks.stream()
+                .filter(info -> info.getIsbn().equals(isbn) && info.getMemberId().equals(memberId))
+                .findFirst()
+                .orElse(null);
 
+        if (null == borrowInfo) {
+            throw new IllegalArgumentException();
+        }
+
+        borrowBooks.remove(borrowInfo);
+
+        Book book = getBookByIsbn(isbn);
+        book.makeAvailable();
     }
 
     @Override
-    public BigDecimal calculateFine(String s, LocalDate localDate) {
-        return null;
+    public BigDecimal calculateFine(String isbn, LocalDate localDate) {
+        return BigDecimal.ZERO; // TOOD
     }
 
     @Override
@@ -109,6 +139,17 @@ public class MyLibrary implements Library {
 
     @Override
     public void addBookToCatalog(OldBook oldBook) {
+        Book book = new Book(
+                oldBook.getTitle(),
+                List.of(new Author(oldBook.getAuthor(), 0)), // TODO fix this latter
+                oldBook.getIsbn(),
+                oldBook.getPublicationDate().getYear(), // TODO
+                oldBook.getPublisher(),
+                oldBook.getNumberOfPages(),
+                new BigDecimal(oldBook.getPrice()),
+                true
+        );
 
+        addBookToCatalog(book);
     }
 }
