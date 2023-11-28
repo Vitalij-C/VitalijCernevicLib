@@ -4,14 +4,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-public class MyLibraryFeatureTest {
+public class MyLibraryPriceFilterTest {
     private MyLibrary catalog;
 
-    public MyLibraryFeatureTest() {
+    public MyLibraryPriceFilterTest() {
     }
 
     @BeforeEach
@@ -110,29 +108,5 @@ public class MyLibraryFeatureTest {
         Assertions.assertEquals("Java - 25", books.get(0).getTitle());
         Assertions.assertEquals("Java - 50", books.get(1).getTitle());
         Assertions.assertEquals("Java - 75", books.get(2).getTitle());
-    }
-
-    @Test
-    void testPublicationFilterNone() {
-        List<Book> books = catalog.getBooksPublishedInYears(1999);
-
-        Assertions.assertEquals(0, books.size());
-    }
-
-    @Test
-    void testPublicationFilter2010() {
-        List<Book> books = catalog.getBooksPublishedInYears(2010);
-
-        Assertions.assertEquals(1, books.size());
-        Assertions.assertEquals("Java - 50", books.get(0).getTitle());
-    }
-
-    @Test
-    void testPublicationFilter2020() {
-        List<Book> books = catalog.getBooksPublishedInYears(2020);
-
-        Assertions.assertEquals(2, books.size());
-        Assertions.assertEquals("Java - 75", books.get(0).getTitle());
-        Assertions.assertEquals("Java - 100", books.get(1).getTitle());
     }
 }
