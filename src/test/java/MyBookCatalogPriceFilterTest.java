@@ -1,20 +1,20 @@
 import lt.techin.library.Book;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Assertions;
 
 import java.math.BigDecimal;
 import java.util.List;
 
-public class MyLibraryPublicationYearFilterTest {
-    private MyLibrary catalog;
+public class MyBookCatalogPriceFilterTest {
+    private MyBookCatalog catalog;
 
-    public MyLibraryPublicationYearFilterTest() {
+    public MyBookCatalogPriceFilterTest() {
     }
 
     @BeforeEach
     void setup() {
-        this.catalog = new MyLibrary();
+        this.catalog = new MyBookCatalog();
 
         Book book = new Book(
                 "Java - 0",
@@ -78,26 +78,35 @@ public class MyLibraryPublicationYearFilterTest {
     }
 
     @Test
-    void testPublicationFilterNone() {
-        List<Book> books = catalog.getBooksPublishedInYears(1999);
+    void testYearRangeAll() {
+        List<Book> books = catalog.getBooksInPriceRange(new BigDecimal(0), new BigDecimal(100));
 
-        Assertions.assertEquals(0, books.size());
+        Assertions.assertEquals(5, books.size());
     }
 
     @Test
-    void testPublicationFilter2010() {
-        List<Book> books = catalog.getBooksPublishedInYears(2010);
+    void testYearRangeOnly0() {
+        List<Book> books = catalog.getBooksInPriceRange(new BigDecimal(0), new BigDecimal(0));
 
         Assertions.assertEquals(1, books.size());
-        Assertions.assertEquals("Java - 50", books.get(0).getTitle());
+        Assertions.assertEquals("Java - 0", books.get(0).getTitle());
     }
 
     @Test
-    void testPublicationFilter2020() {
-        List<Book> books = catalog.getBooksPublishedInYears(2020);
+    void testYearRangeOnly100() {
+        List<Book> books = catalog.getBooksInPriceRange(new BigDecimal(100), new BigDecimal(100));
 
-        Assertions.assertEquals(2, books.size());
-        Assertions.assertEquals("Java - 75", books.get(0).getTitle());
-        Assertions.assertEquals("Java - 100", books.get(1).getTitle());
+        Assertions.assertEquals(1, books.size());
+        Assertions.assertEquals("Java - 100", books.get(0).getTitle());
+    }
+
+    @Test
+    void testYearRangeFrom10To90() {
+        List<Book> books = catalog.getBooksInPriceRange(new BigDecimal(10), new BigDecimal(90));
+
+        Assertions.assertEquals(3, books.size());
+        Assertions.assertEquals("Java - 25", books.get(0).getTitle());
+        Assertions.assertEquals("Java - 50", books.get(1).getTitle());
+        Assertions.assertEquals("Java - 75", books.get(2).getTitle());
     }
 }
