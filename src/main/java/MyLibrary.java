@@ -65,6 +65,15 @@ public class MyLibrary implements Library {
             throw new IllegalArgumentException();
         }
 
+        BorrowInfo hasBorrowInfo = borrowBooks.stream()
+                .filter(info -> info.getMemberId().equals(memberId) && info.getIsbn().equals(isbn))
+                .findFirst()
+                .orElse(null);
+
+        if (null != hasBorrowInfo) {
+            throw new IllegalArgumentException();
+        }
+
         Book book = getBookByIsbn(isbn);
 
         if (null == book || !book.isAvailable()) {
@@ -81,7 +90,7 @@ public class MyLibrary implements Library {
     @Override
     public void returnBook(String memberId, String isbn) {
         BorrowInfo borrowInfo = borrowBooks.stream()
-                .filter(info -> info.getIsbn().equals(isbn) && info.getMemberId().equals(memberId))
+                .filter(info -> info.getMemberId().equals(memberId) && info.getIsbn().equals(isbn))
                 .findFirst()
                 .orElse(null);
 
