@@ -1,5 +1,6 @@
 import lt.techin.library.Book;
 import lt.techin.library.BookCatalog;
+import lt.techin.library.BookNotFoundException;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -7,7 +8,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
-
 
 public class MyLibrary implements BookCatalog {
 
@@ -19,26 +19,43 @@ public class MyLibrary implements BookCatalog {
 
     @Override
     public void addBook(Book book) {
+        if (null == book) {
+            throw new IllegalArgumentException();
+        }
+
+        if (null == book.getIsbn() || book.getIsbn().isEmpty()) {
+            throw new IllegalArgumentException();
+        }
+
+        if (null == book.getTitle() || book.getTitle().isEmpty()) {
+            throw new IllegalArgumentException();
+        }
+
         bookList.add(book);
     }
 
     @Override
     public Book getBookByIsbn(String s) {
-        return bookList.stream()
+        Book foundBook = bookList.stream()
                 .filter(book -> book.getIsbn().equals(s))
-                .toList()
-                .getFirst();
+                .findFirst()
+                .orElse(null);
+
+        if (null == foundBook) {
+            throw new BookNotFoundException("Book not found");
+        }
+
+        return foundBook;
     }
 
     @Override
     public List<Book> searchBooksByAuthor(String s) {
-        return null;
-        /*
         return bookList.stream()
-                .filter(book -> book.getAuthors().stream()
-                        .filter(author -> )
+                .filter(
+                        book -> book.getAuthors().stream()
+                                .anyMatch(author -> author.getName().equals(s))
                 )
-                .collect(Collectors.toList());*/
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -49,17 +66,39 @@ public class MyLibrary implements BookCatalog {
     @Override
     public boolean isBookInCatalog(String s) {
         return bookList.stream()
-                .anyMatch(book -> book.getTitle().equals(s));
+                .anyMatch(book -> book.getIsbn().equals(s));
     }
 
     @Override
     public boolean isBookAvailable(String s) {
-        return false;
+        return bookList.stream()
+                .filter(book -> book.getIsbn().equals(s))
+                .toList()
+                .getFirst()
+                .isAvailable();
     }
 
     @Override
     public Book findNewestBookByPublisher(String s) {
-        return null;
+        Book foundBook = bookList.stream()
+                .filter(book -> book.getPublisher().equals(s))
+                .reduce(null, ((result, book) -> {
+                    if (null == result) {
+                        return book;
+                    }
+
+                    if (result.getPublicationYear() < book.getPublicationYear()) {
+                        return book;
+                    }
+
+                    return result;
+                }));
+
+        if (null == foundBook) {
+            throw new BookNotFoundException("Book not found");
+        }
+
+        return foundBook;
     }
 
     @Override
