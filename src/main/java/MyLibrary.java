@@ -5,19 +5,22 @@ import lt.techin.library.OldBook;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
+import java.time.Year;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.groupingBy;
 
 public class MyLibrary implements Library {
 
     private MyBookCatalog catalog;
 
+    private Set<LibraryMember> members;
+
     public MyLibrary() {
         catalog = new MyBookCatalog();
-    }
 
-    public MyLibrary(MyBookCatalog catalog) {
-        this.catalog = catalog;
+        members = new HashSet<>();
     }
 
     @Override
@@ -27,7 +30,7 @@ public class MyLibrary implements Library {
 
     @Override
     public void registerMember(LibraryMember libraryMember) {
-
+        members.add(libraryMember);
     }
 
     @Override
@@ -52,22 +55,41 @@ public class MyLibrary implements Library {
 
     @Override
     public List<LibraryMember> getAllMembers() {
-        return null;
+        return members.stream().toList();
     }
 
     @Override
     public List<LibraryMember> getSortedByAge() {
-        return null;
+        return members.stream()
+                .sorted((member1, member2) -> {
+                    LocalDate member1Date = member1.getDateOfBirth();
+                    LocalDate member2Date = member2.getDateOfBirth();
+
+                    if (member1Date.getYear() != member2Date.getYear()) {
+                        return Integer.compare(member1Date.getYear(), member2Date.getYear());
+                    }
+
+                    //TODO compare month
+                    //TODO compare day
+
+                    return 0;
+                })
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<LibraryMember> getUnderAgeMembers(int i) {
-        return null;
+        return members.stream()
+                .filter(member -> member.getDateOfBirth().getYear() - Year.now().getValue() < i)
+                .collect(Collectors.toList());
     }
 
     @Override
     public Map<Integer, List<LibraryMember>> getGroupedByYearOfBirth() {
-        return null;
+        return members.stream()
+                .collect(groupingBy(member -> {
+                    return member.getDateOfBirth().getYear();
+                }));
     }
 
     @Override
