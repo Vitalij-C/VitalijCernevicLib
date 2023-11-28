@@ -3,7 +3,10 @@ import lt.techin.library.BookCatalog;
 import lt.techin.library.BookNotFoundException;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -140,5 +143,17 @@ public class MyLibrary implements BookCatalog {
         return bookList.stream()
                 .map(Book::getPrice)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    public List<Book> getBooksInPriceRange(BigDecimal fromPrice, BigDecimal toPrice) {
+        return bookList.stream()
+                .filter(book -> book.getPrice().compareTo(fromPrice) >= 0 && book.getPrice().compareTo(toPrice) <= 0)
+                .collect(Collectors.toList());
+    }
+
+    public List<Book> getBooksPublishedInYears(int year) {
+        return bookList.stream()
+                .filter(book -> book.getPublicationYear() == year)
+                .collect(Collectors.toList());
     }
 }
